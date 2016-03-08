@@ -8,7 +8,7 @@ var H = 590;
 
 //var N=90;
 //Upplösning på vattenytan
-var NH = 200; //300 ser jävligt smooth ut, men för mycket beräkningar
+var NH = 200; //300 ser jävligt smooth ut, men för mycket beräkningstungt
 var NW = Math.ceil(NH * W/H) ;
 console.log(NW);
 
@@ -41,9 +41,9 @@ var SIGMA = 0.01;
 init = function() {
 
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000);
-  camera.position.z = 200;
-  camera.position.y = 150;
-  camera.position.x = -100;
+  camera.position.z = 0;
+  camera.position.y = 350;
+  camera.position.x = -200;
 
   scene = new THREE.Scene();
 
@@ -127,7 +127,7 @@ init = function() {
   scene.add(bathBottom);
 
 
-  controls = new THREE.TrackballControls(camera);
+  controls = new THREE.OrbitControls(camera);
   //finns till för att kunna klicka och hitta klickpositioner
   projector = new THREE.Projector(); // change to raycaster? KOLLA HIT
 
