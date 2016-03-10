@@ -6,9 +6,8 @@ var mesh, renderer, scene, camera, geometry, controls, projector;
 var W = 290;
 var H = 590;
 
-//var N=90;
 //Upplösning på vattenytan
-var NH = 100; //300 ser jävligt smooth ut, men för mycket beräkningstungt
+var NH = 100; //300 ser jävligt smooth ut, men för mycket beräkningstungt, bör isf ordna beräkningar på GPU
 var NW = Math.ceil(NH * W/H) ;
 console.log(NW);
 
@@ -20,8 +19,8 @@ var C2 = C * C;
 var DAMPING = 0.0001;
 var SIM_SPEED = 1.3;
 
-//Några deltan för "our finite differences"
-var DELTA_X = W / NW;
+//Stegstorlek i x och z-led
+var DELTA_X = W / NW; 
 var DELTA_X2 = DELTA_X * DELTA_X;
 var DELTA_Z = H / NH;
 var DELTA_Z2 = DELTA_Z * DELTA_Z;
@@ -33,10 +32,13 @@ var MAX_ITERATRED_DT = 100;
 
 //höjden på den ursprungliga droppen
 var MAX_Y = 40;
+
 //koncentrationen av första droppen
-//"this is the square of the inverse of the usual "sigma" used in the gaussian distribution"
-//KOLLA HIT
+//Sigma-variabeln används för att göra en normalfördelning för en "vattendroppe", se "Gaussian distribution"
 var SIGMA = 0.01;
+
+//now används till tid i function animate
+now = Date.now();
 
 init = function() {
 
@@ -47,6 +49,7 @@ init = function() {
 
   scene = new THREE.Scene();
 
+ //-------------LJUS-------------------
   var light = new THREE.HemisphereLight(0x808080);
   //light.position.set(10, 10, 10);
   //scene.add(light);
@@ -68,25 +71,25 @@ init = function() {
 
   scene.add( spotLight );
 
+ //-------------VATTENYTAN-------------------
+
   //Planet som är vattenytan
   geometry = new THREE.PlaneGeometry(W, H, NW, NH);
-  //console.log(geometry);
 
-  //matrisen som läggs på planegeometry
+  //matrisen som appliceras på vattenytan
   var matrix = new THREE.Matrix4();
   matrix.makeRotationX(-Math.PI / 2);
   geometry.applyMatrix(matrix);
 
   initGeometry();
 
+  //material och mesh
   var materials = new THREE.MeshPhongMaterial({ color: 0x006080, specular: 0x101010, opacity: 0.7, transparent: true, wireframe : false});
-
   mesh = new THREE.Mesh(geometry, materials);
-
   scene.add(mesh);
 
 
-  //BADKARET
+  //-------------BADKARET-------------------
   var bathMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff});
   
   
@@ -126,10 +129,12 @@ init = function() {
   var bathBottom = new THREE.Mesh(bathGeometryBottom, bathMaterial);
   scene.add(bathBottom);
 
+  //--------------------------------------------
 
+  //navigation till scenen
   controls = new THREE.OrbitControls(camera);
   //finns till för att kunna klicka och hitta klickpositioner
-  projector = new THREE.Projector(); // change to raycaster? KOLLA HIT
+  projector = new THREE.Projector(); // projector har slutat uppdateras, ändra till raycaster? 
 
   renderer = new THREE.WebGLRenderer();
 
@@ -149,7 +154,8 @@ init = function() {
   return document.body.appendChild(renderer.domElement);
 };
 
-now = Date.now();
+ //-------------FUNKTIONER-------------------
+
 
 animate = function() {
   var dt;
@@ -196,10 +202,10 @@ initGeometry = function() {
 integrate = function(dt) {
   var d2x, d2z, i, iNextX, iNextZ, iPrevX, iPrevZ, j, k, l, m, v, x, z;
   v = geometry.vertices;
-  for (z = 1; z < NH; z++) { //; 1 <= N ? z < N : z > N; z = 1 <= N ? ++z : --j) {
-    for (x = 1; x < NW; x++) { //k = 1, ref1 = N; 1 <= ref1 ? k < ref1 : k > ref1; x = 1 <= ref1 ? ++k : --k) {
+  for (z = 1; z < NH; z++) { 
+    for (x = 1; x < NW; x++) { 
       i = idx(x, z); // idx funktionen konverterar x och z till värden i indexarrayen
-      //Eulermetod med "central finite differences"
+      
       iPrevX = idx(x - 1, z);
       iNextX = idx(x + 1, z);
       iPrevZ = idx(x, z - 1);
@@ -225,6 +231,7 @@ integrate = function(dt) {
   return geometry.normalsNeedUpdate = true;
 };
 
+//hanterar raycaster/projector för alla musklick
 hitTest = function(e) {
   var index, intersects, j, len, p, raycaster, results, vector, vertex, x, z;
   //get vector of mouseclick event coordinates
@@ -237,10 +244,10 @@ hitTest = function(e) {
     results = [];
     for (index = 0; index < geometry.vertices.length; index ++) {
       vertex = geometry.vertices[index];
-      x = vertex.x - p.x;
+      x = vertex.x - p.x; 
       z = vertex.z - p.z;
       vertex.y += (MAX_Y * Math.exp(-SIGMA * x * x) * Math.exp(-SIGMA * z * z)); //starta droppe vid tryck
-      //hantera tryck vid kanterna
+      //hantera tryck vid kanterna, gränsvillkor
       if (vertex.x === -W / 2 || vertex.x === W / 2 || vertex.z === -H / 2 || vertex.z === H / 2) {
         results.push(vertex.y = 0);
       } else { 
