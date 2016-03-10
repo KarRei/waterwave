@@ -8,7 +8,7 @@ var H = 590;
 
 //var N=90;
 //Upplösning på vattenytan
-var NH = 200; //300 ser jävligt smooth ut, men för mycket beräkningstungt
+var NH = 100; //300 ser jävligt smooth ut, men för mycket beräkningstungt
 var NW = Math.ceil(NH * W/H) ;
 console.log(NW);
 
@@ -199,23 +199,24 @@ integrate = function(dt) {
   for (z = 1; z < NH; z++) { //; 1 <= N ? z < N : z > N; z = 1 <= N ? ++z : --j) {
     for (x = 1; x < NW; x++) { //k = 1, ref1 = N; 1 <= ref1 ? k < ref1 : k > ref1; x = 1 <= ref1 ? ++k : --k) {
       i = idx(x, z); // idx funktionen konverterar x och z till värden i indexarrayen
-      //Eulermetod med "finite differences"
+      //Eulermetod med "central finite differences"
       iPrevX = idx(x - 1, z);
       iNextX = idx(x + 1, z);
       iPrevZ = idx(x, z - 1);
       iNextZ = idx(x, z + 1);
-      d2x = (v[iNextX].y - 2 * v[i].y + v[iPrevX].y) / DELTA_X2; // Använd "second finite differences in space"
+      // finita differensmetoden används här för att lösa vår andra ordningens differentialekvation
+      d2x = (v[iNextX].y - 2 * v[i].y + v[iPrevX].y) / DELTA_X2; 
       d2z = (v[iNextZ].y - 2 * v[i].y + v[iPrevZ].y) / DELTA_Z2;
-      v[i].ay = C2 * (d2x + d2z); //acceleration för varje vertex
-      v[i].ay += -DAMPING * v[i].uy; 
-      v[i].uy += dt * v[i].ay;
-      v[i].newY = v[i].y + dt * v[i].uy; // beräkna ny y-position; höjd = gammal höjd + tidssteg * hastigheten
+      v[i].ay = C2 * (d2x + d2z); //acceleration för varje vertex; 
+      v[i].ay += -DAMPING * v[i].uy; // acceleration = gammal acc - dämpning * hastighet
+      v[i].uy += dt * v[i].ay; // ny hastighet = gammal hastighet + tidssteg*acceleration, Euler
+      v[i].newY = v[i].y + dt * v[i].uy; // beräkna ny y-position; höjd = gammal höjd + tidssteg * hastigheten, Euler
     }
   }
   for (z = 1; z < NH; z++) { 
     for (x = 1; x < NW; x++) { 
       i = idx(x, z);
-      v[i].y = v[i].newY; // skriv över den nya höjden för varje vertex
+      v[i].y = v[i].newY; // skriv över med den nya höjden för varje vertex
     }
   }
   geometry.verticesNeedUpdate = true;
