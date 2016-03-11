@@ -248,6 +248,82 @@ init = function() {
   scene.add(stepFour);
   //--------------------------------------------
 
+  //----------SKYBOX---------------------
+  // code from http://stemkoski.github.io/Three.js/Skybox.html
+        var imagePrefix = "textures/heaven/";
+        var directions  = ["right", "left", "top", "down", "front", "back"];
+        var imageSuffix = ".png";
+        var skyGeometry = new THREE.BoxGeometry( 10000, 10000, 10000 ); 
+        
+        // create array for images to skybox
+        var materialArray = [];
+        for (var i = 0; i < 6; i++)
+          materialArray.push( new THREE.MeshBasicMaterial({
+            map: THREE.ImageUtils.loadTexture( imagePrefix + directions[i] + imageSuffix ),
+            side: THREE.BackSide
+          }));
+        var skyMaterial = new THREE.MeshFaceMaterial( materialArray );
+        
+        // testing variable for test without textures
+        //var himmelmaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00, side: THREE.BackSide } );
+        var skyBox = new THREE.Mesh( skyGeometry, skyMaterial );
+        scene.add( skyBox );
+        
+
+  //----------FLOOR---------------------
+  var floor1 = new THREE.PlaneGeometry(10000, 7000);
+  //matrisen som appliceras på golvet
+  //var matrix = new THREE.Matrix4();
+  //matrix.makeRotationX(-Math.PI / 2);
+  floor1.applyMatrix(new THREE.Matrix4().makeTranslation(5160,3190,0));
+  floor1.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+
+var floorTex = new THREE.TextureLoader().load("textures/floortiles.jpg");
+floorTex.wrapS = THREE.reapeatWrapping; 
+floorTex.wrapT = THREE.reapeatWrapping; 
+floorTex.repeat.set(7,7); 
+
+   //material och mesh
+  var floorMat = new THREE.MeshBasicMaterial( {map: floorTex, side: THREE.DoubleSide} );
+  floorMesh1 = new THREE.Mesh(floor1, floorMat);
+  scene.add(floorMesh1);
+
+
+  var floor2 = new THREE.PlaneGeometry(7000, 7000);
+  floor2.applyMatrix(new THREE.Matrix4().makeTranslation(-3340,3810,0));
+  floor2.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+   //material och mesh
+  floorMesh2 = new THREE.Mesh(floor2, floorMat);
+  scene.add(floorMesh2);
+
+  var floor3 = new THREE.PlaneGeometry(7000, 7000);
+  floor3.applyMatrix(new THREE.Matrix4().makeTranslation(-3660,-3190,0));
+  floor3.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+   //material och mesh
+  floorMesh3 = new THREE.Mesh(floor3, floorMat);
+  scene.add(floorMesh3);
+
+  var floor4 = new THREE.PlaneGeometry(7000, 7000);
+  floor4.applyMatrix(new THREE.Matrix4().makeTranslation(3340,-3810,0));
+  floor4.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+   //material och mesh
+  floorMesh4 = new THREE.Mesh(floor4, floorMat);
+  scene.add(floorMesh4);
+
+
+/*
+    var floorLeft = new THREE.PlaneGeometry(320, 2350);
+  floorLeft.applyMatrix(new THREE.Matrix4().makeTranslation(0,1500,0));
+  floorLeft.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+   //material och mesh
+  floorMesh2 = new THREE.Mesh(floorLeft, floorMat);
+  scene.add(floorMesh2);
+
+*/
+
+//-------------------------------------
+
+
   //navigation till scenen
   controls = new THREE.OrbitControls(camera);
   //finns till för att kunna klicka och hitta klickpositioner
