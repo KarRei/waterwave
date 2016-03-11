@@ -50,10 +50,6 @@ init = function() {
   scene = new THREE.Scene();
 
  //-------------LJUS-------------------
-  var light = new THREE.HemisphereLight(0x808080);
-  //light.position.set(10, 10, 10);
-  //scene.add(light);
-
   var lightamb = new THREE.AmbientLight( 0x909090 ); // soft white light
   scene.add( lightamb );
 
@@ -90,45 +86,166 @@ init = function() {
 
 
   //-------------BADKARET-------------------
-  var bathMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff});
-  
-  
+  var bathMaterialcolor = new THREE.MeshLambertMaterial({ color: 0xff0000});
+
+  //-----kortsida material--------
+  var texture1 = new THREE.TextureLoader().load( "tiles.jpg" );
+  texture1.wrapS = THREE.RepeatWrapping;
+  texture1.wrapT = THREE.RepeatWrapping;
+  texture1.repeat.set( 1, 4); //sidor
+
+  var texture2 = new THREE.TextureLoader().load( "tiles.jpg" );
+  texture2.wrapS = THREE.RepeatWrapping;
+  texture2.wrapT = THREE.RepeatWrapping;
+  texture2.repeat.set( 5, 1 ); // ovan- och undersida
+
+  var texture3 = new THREE.TextureLoader().load( "tiles.jpg" );
+  texture3.wrapS = THREE.RepeatWrapping;
+  texture3.wrapT = THREE.RepeatWrapping;
+  texture3.repeat.set( 7, 4 ); //in och utsida
+
+  var bathMaterial1 = new THREE.MeshLambertMaterial( { map: texture1 } );
+  var bathMaterial2 = new THREE.MeshLambertMaterial( { map: texture2 } );
+  var bathMaterial3 = new THREE.MeshLambertMaterial( { map: texture3 } );
+
+  // utsida, insida, ovan, under, kort-fram, kort-bort
+  var materials = [bathMaterial1, bathMaterial1, bathMaterial2, bathMaterial2, bathMaterial3, bathMaterial3];
+
+  var bathMaterial = new THREE.MeshFaceMaterial( materials); 
+  //----slut kortsida material---------
+
   //sida ett
   var bathGeometryShort = new THREE.BoxGeometry (299, 200, 20);
-  bathGeometryShort.applyMatrix( new THREE.Matrix4().makeTranslation(0, -60, -300) );
+  bathGeometryShort.applyMatrix( new THREE.Matrix4().makeTranslation(0, -80, -300) );
   var bathShortSideOne = new THREE.Mesh(bathGeometryShort, bathMaterial);
   scene.add(bathShortSideOne);
 
   //sida två
   var bathGeometryShortTwo = new THREE.BoxGeometry (299, 200, 20);
-  bathGeometryShortTwo.applyMatrix( new THREE.Matrix4().makeTranslation(0, -60, 300) );
+  bathGeometryShortTwo.applyMatrix( new THREE.Matrix4().makeTranslation(0, -80, 300) );
   var bathShortSideTwo = new THREE.Mesh(bathGeometryShortTwo, bathMaterial);
   scene.add(bathShortSideTwo);
 
+    //-----långsida material-----
+  var texture4 = new THREE.TextureLoader().load( "tiles.jpg" );
+  texture4.wrapS = THREE.RepeatWrapping;
+  texture4.wrapT = THREE.RepeatWrapping;
+  texture4.repeat.set( 15, 1 ); //ovan, under
+
+  var texture5 = new THREE.TextureLoader().load( "tiles.jpg" );
+  texture5.wrapS = THREE.RepeatWrapping;
+  texture5.wrapT = THREE.RepeatWrapping;
+  texture5.repeat.set( 1, 8 ); //sidor
+
+  var texture6 = new THREE.TextureLoader().load( "tiles.jpg" );
+  texture6.wrapS = THREE.RepeatWrapping;
+  texture6.wrapT = THREE.RepeatWrapping;
+  texture6.repeat.set( 15, 4 ); //långsida-långsida!
+
+  var bathMaterial4 = new THREE.MeshLambertMaterial( { map: texture4 } );
+  var bathMaterial5 = new THREE.MeshLambertMaterial( { map: texture5 } );
+  var bathMaterial6 = new THREE.MeshLambertMaterial( { map: texture6 } );
+
+  // [kortsida-vänster, kortsida-höger, ovansida, undersida, lång-långsida-in, lång-långsida-ut]
+  var materials2 = [bathMaterial5, bathMaterial5, bathMaterial4, bathMaterial4, bathMaterial6, bathMaterial6];
+
+  var bathMaterial2 = new THREE.MeshFaceMaterial( materials2 ); 
+  //----slut långsida material-------
+
   //sida tre
   var bathGeometryLong = new THREE.BoxGeometry (620, 200, 20);
-  bathGeometryLong.translate(0, -60, -150);
+  bathGeometryLong.translate(0, -80, -150);
   var matrix = new THREE.Matrix4();
   matrix.makeRotationY(Math.PI / 2);
   bathGeometryLong.applyMatrix( matrix );
-  var bathShortSideThree = new THREE.Mesh(bathGeometryLong, bathMaterial);
+  var bathShortSideThree = new THREE.Mesh(bathGeometryLong, bathMaterial2);
   scene.add(bathShortSideThree);
 
   //sida fyra
   var bathGeometryLongTwo = new THREE.BoxGeometry (620, 200, 20);
-  bathGeometryLongTwo.translate(0, -60, 150);
+  bathGeometryLongTwo.translate(0, -80, 150);
   var matrix2 = new THREE.Matrix4();
   matrix2.makeRotationY(Math.PI / 2);
   bathGeometryLongTwo.applyMatrix( matrix2 );
-  var bathShortSideFour = new THREE.Mesh(bathGeometryLongTwo, bathMaterial);
+  var bathShortSideFour = new THREE.Mesh(bathGeometryLongTwo, bathMaterial2);
   scene.add(bathShortSideFour);
+
+  //----botten material---------
+  var texture7 = new THREE.TextureLoader().load( "tiles.jpg" );
+  texture7.wrapS = THREE.RepeatWrapping;
+  texture7.wrapT = THREE.RepeatWrapping;
+  texture7.repeat.set( 1, 1 ); 
+
+  var texture8 = new THREE.TextureLoader().load( "tiles.jpg" );
+  texture8.wrapS = THREE.RepeatWrapping;
+  texture8.wrapT = THREE.RepeatWrapping;
+  texture8.repeat.set( 5, 15 ); 
+
+  var texture9 = new THREE.TextureLoader().load( "tiles.jpg" );
+  texture9.wrapS = THREE.RepeatWrapping;
+  texture9.wrapT = THREE.RepeatWrapping;
+  texture9.repeat.set( 1, 1 ); //in och utsida
+
+  var bathMaterial7 = new THREE.MeshLambertMaterial( { map: texture7 } );
+  var bathMaterial8 = new THREE.MeshLambertMaterial( { map: texture8 } );
+  var bathMaterial9 = new THREE.MeshLambertMaterial( { map: texture9 } );
+
+  var materials3 = [bathMaterial7, bathMaterial7, bathMaterial8, bathMaterial8, bathMaterial9, bathMaterial9];
+
+  var bathMaterial3 = new THREE.MeshFaceMaterial( materials3 ); 
+  //------slut botten materal-------
 
   // botten
   var bathGeometryBottom = new THREE.BoxGeometry(299, 20, 620);
-  bathGeometryBottom.translate(0, -150, 0);
-  var bathBottom = new THREE.Mesh(bathGeometryBottom, bathMaterial);
+  bathGeometryBottom.translate(0, -170, 0);
+  var bathBottom = new THREE.Mesh(bathGeometryBottom, bathMaterial3);
   scene.add(bathBottom);
 
+  //-------------TRAPPSTEG-------------------
+  //-----trappsteg material-------
+  var texture10 = new THREE.TextureLoader().load( "tiles.jpg" );
+  texture10.wrapS = THREE.RepeatWrapping;
+  texture10.wrapT = THREE.RepeatWrapping;
+  texture10.repeat.set( 4, 1 ); 
+
+  var texture11 = new THREE.TextureLoader().load( "tiles.jpg" );
+  texture11.wrapS = THREE.RepeatWrapping;
+  texture11.wrapT = THREE.RepeatWrapping;
+  texture11.repeat.set( 4, 1 ); 
+
+  var texture12 = new THREE.TextureLoader().load( "tiles.jpg" );
+  texture12.wrapS = THREE.RepeatWrapping;
+  texture12.wrapT = THREE.RepeatWrapping;
+  texture12.repeat.set( 4, 2 ); //in och utsida
+
+  var bathMaterial10 = new THREE.MeshLambertMaterial( { map: texture10 } );
+  var bathMaterial11 = new THREE.MeshLambertMaterial( { map: texture11 } );
+  var bathMaterial12 = new THREE.MeshLambertMaterial( { map: texture12 } );
+
+  var materials4 = [bathMaterial10, bathMaterial10, bathMaterial11, bathMaterial11, bathMaterial12, bathMaterial12];
+
+  var bathMaterial4 = new THREE.MeshFaceMaterial( materials4 ); 
+  //------slut trappsteg material-----
+
+  var stepOneGeometry = new THREE.BoxGeometry(280, 38, 60);
+  stepOneGeometry.translate(0, -35, 260);
+  var stepOne = new THREE.Mesh(stepOneGeometry, bathMaterial4);
+  scene.add(stepOne);
+
+  var stepTwoGeometry = new THREE.BoxGeometry(280, 38, 60);
+  stepTwoGeometry.translate(0, -73, 200);
+  var stepTwo = new THREE.Mesh(stepTwoGeometry, bathMaterial4);
+  scene.add(stepTwo);
+
+  var stepThreeGeometry = new THREE.BoxGeometry(280, 38, 60);
+  stepThreeGeometry.translate(0, -109, 140);
+  var stepThree = new THREE.Mesh(stepThreeGeometry, bathMaterial4);
+  scene.add(stepThree);
+
+  var stepFourGeometry = new THREE.BoxGeometry(280, 38, 60);
+  stepFourGeometry.translate(0, -147, 80);
+  var stepFour = new THREE.Mesh(stepFourGeometry, bathMaterial4);
+  scene.add(stepFour);
   //--------------------------------------------
 
   //navigation till scenen
